@@ -1,0 +1,197 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="LuoMing`s blog."><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.5"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.5"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><title>【算法与数据结构 01】动态规划之引入 | 褪色的零</title><meta name="generator" content="Hexo 5.2.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">【算法与数据结构 01】动态规划之引入</h1><a id="logo" href="/.">褪色的零</a><p class="description">愿将腰下剑，只为斩楼兰</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">【算法与数据结构 01】动态规划之引入</h1><div class="post-meta"><a href="/2020/04/09/%E3%80%90%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%2001%E3%80%91%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B9%8B%E5%BC%95%E5%85%A5/#comments" class="comment-count"></a><p><span class="date">Apr 09, 2020</span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="【算法与数据结构-01】动态规划之引入"><a href="#【算法与数据结构-01】动态规划之引入" class="headerlink" title="【算法与数据结构 01】动态规划之引入"></a>【算法与数据结构 01】动态规划之引入</h1><hr>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>前几天在力扣刷题时遇到了动态规划的问题，看了题解之后有些兴趣便自己下去多了解了一下，在此分享给大家（另外给的例题都是自己做过的，然后思考了下顺便分享下，希望大家喜欢~）</p>
+</blockquote>
+<p>本篇博客将分为两个部分：</p>
+<ul>
+<li>对动态规划进行阐述</li>
+<li>配合一些动态规划的题目进一步了解</li>
+</ul>
+<p>那么接下来就让我们开始吧~</p>
+<hr>
+<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>动态规划（Dynamic programming，简称 DP）中本阶段的状态往往是上一阶段状态和上一阶段决策的结果。换言之就是原问题可以拆解成若干个子问题，而这些子问题又可拆解……最后可以由初始问题的解来推出原问题的解。</p>
+<p>而这之中拆解的过程又是耐人寻味的且有趣的。</p>
+<h3 id="使用要素（划重点！）"><a href="#使用要素（划重点！）" class="headerlink" title="使用要素（划重点！）"></a>使用要素（划重点！）</h3><ul>
+<li>最优子结构：如果问题的最优解所包含的子问题的解也是最优的，我们就称该问题具有最优子结构性质（即满足最优化原理）。换言之，总问题包含很多个子问题，而这些子问题的解也是最优的。</li>
+<li>子问题的重叠性：子问题重叠性质是指在用递归算法自顶向下对问题进行求解时，每次产生的子问题并不总是新问题，有些子问题会被重复计算多次。而动态规划利用了这个性质，对每一个子问题都计算一次，将结果保存在一个表格中（例如数组），之后要用的时候取出来就行，就不必再重新计算，提高了效率。</li>
+</ul>
+<p>也许到这你还是对动态规划不是很理解，那么就来谈谈这当中的经典问题：爬楼梯</p>
+<blockquote>
+<p>假设你正在爬楼梯。需要 <em>n</em> 阶你才能到达楼顶。</p>
+<p>每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？</p>
+</blockquote>
+<p>初看觉得可以用排列组合来解，但那样的话n 越大越难解，效率也会很低</p>
+<p>这时就要提到动态规划了：</p>
+<p><code>n</code>阶台阶可以分为<code>n-1</code>阶台阶走一阶台阶和<code>n-2</code>阶台阶走两步，所以，<code>n</code>阶台阶的走法就是<code>n-1</code>阶台阶走法加上<code>n-2</code>阶台阶走法。这时可得状态转移方程：<code>F(n) = F(n-1) + F(n-2) (n &gt;= 3)</code>（这里如果是<code>n-2</code>阶台阶走1 1 两次的话，又会回到<code>n-1</code>阶台阶上）</p>
+<p>将原问题进行拆解，也就是随着n 的减少，到最后剩下1阶台阶和2阶台阶，而1阶台阶只能是走1步，2阶台阶可以是1 1 走两次和走2步到，所以可得<code>F(1) = 1, F(2) = 2</code>，这就是问题的边界</p>
+<p>可以看出，从最开始的问题解可以逐渐推出最终问题的解，妙啊~</p>
+<p>所以动态规划问题的精髓就在于状态转移方程</p>
+<h2 id="相关题目"><a href="#相关题目" class="headerlink" title="相关题目"></a>相关题目</h2><h3 id="LeetCode-面试题-17-16-按摩师"><a href="#LeetCode-面试题-17-16-按摩师" class="headerlink" title="LeetCode 面试题 17.16. 按摩师"></a>LeetCode <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/the-masseuse-lcci/">面试题 17.16. 按摩师</a></h3><p><img src="https://raw.githubusercontent.com/hk27xing/Figurebed/master/img/20200504223538.png" alt=""></p>
+<p>初看完题目，可以确定的是一个状态<em>所能达到的最长总时间</em>与之前两个状态和本状态的分钟数有关</p>
+<p>观察题目，因为是不能接收相邻的预约，而且预约的总时间要最长，所以第<code>i</code>次、第<code>i-1</code>次和第<code>i-2</code>次预约就有了关系：</p>
+<ul>
+<li>如果接收第<code>i</code>次预约，那么第<code>i-1</code>次预约就休息，此时<code>i-2</code>次预约<em>所能达到的最长总时间</em> 加上第<code>i</code>次预约的时间<code>nums[i]</code>就得大于第<code>i-1</code>次预约<em>所能达到的最长总时间</em></li>
+<li>如果不接受第<code>i</code>次预约，那么第<code>i-1</code>次预约的状态就不确定（由<code>i-1</code>次预约前的总时间数确定，但<code>i-1</code>次预约<em>所能达到的最长总时间数</em> 是可以确定的），此时<code>i-2</code>次预约<em>所能达到的最长总时间</em> 加上第<code>i</code>次预约的时间<code>nums[i]</code>就得小于第<code>i-1</code>次预约<em>所能达到的最长总时间</em></li>
+</ul>
+<p>定义<code>dp[i]</code>为<code>[0,i]</code>区间内预约所能达到的最长总时间数</p>
+<p>所以这时的状态转移方程就为<code>dp[i] = max(dp[i-2] + nums[i], dp[i-1])</code></p>
+<p>随着i 的减少，最后来到了边界上：<code>i = 0</code>和<code>i = 1</code>（<code>i = 2</code>即可由这两个值所得出）</p>
+<ul>
+<li><code>i = 0</code>时，因为之前没有总时间数所限制，此时<code>dp[0] = nums[0]</code></li>
+<li><code>i = 1</code>时，因为和<code>i = 0</code>是相邻的，此时<code>dp[1] = max(nums[0], nums[1])</code></li>
+</ul>
+<p>到这里本题差不多就解完了，再贴出部分代码以帮助大家理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> len = nums.length;</span><br><span class="line"><span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">dp[<span class="number">0</span>] = nums[<span class="number">0</span>];</span><br><span class="line">dp[<span class="number">1</span>] = Math.max(nums[<span class="number">0</span>], nums[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">2</span>;i &lt; len;i++)&#123;</span><br><span class="line">	dp[i] = Math.max(dp[i-<span class="number">1</span>], dp[i-<span class="number">2</span>] + nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="LeetCode-32-最长有效括号"><a href="#LeetCode-32-最长有效括号" class="headerlink" title="LeetCode 32. 最长有效括号"></a>LeetCode <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/longest-valid-parentheses/">32. 最长有效括号</a></h3><p><img src="https://raw.githubusercontent.com/hk27xing/Figurebed/master/img/20200504223732.png" alt=""></p>
+<p>这里先解释一下有效括号字符串：仅由 <code>&quot;(&quot;</code> 和 <code>&quot;)&quot;</code> 构成的字符串，对于每个左括号，都能找到与之对应的右括号，反之亦然。换句话说，一个有效括号是由<code>&quot;)&quot;</code>结尾的。</p>
+<p>要注意的是题目找的是最长的有效括号的子串，也就是说满足定义的子串如果不连续就只需要最长的，举个例子：<code>&quot;()))()())&quot;</code>，这里应该输出4。</p>
+<p>根据题目给的例子可以看到，遇到<code>&quot;......()&quot;</code>这样的，最长有效括号长度就加2，另外可能还有<code>&quot;......(())&quot;</code>这样的，也是满足有效括号的定义的，这里就直接加4。</p>
+<p>可以发现，当前元素为<code>&quot;(&quot;</code>时，有效括号长度并不会发生变化，因此可以从<code>&quot;)&quot;</code>寻找出dp方程的一个关系，这里可以定义<code>dp[i]</code>的值为以第<code>i</code>个元素结尾时，最长有效括号子字符串的长度，这样的话就会出现两种情况（这里为了简化，<code>dp[i]</code>为<code>&quot;(&quot;</code>时，其值就直接为 0）：</p>
+<ul>
+<li><p>当元素<code>&quot;)&quot;</code>前一个元素为<code>&quot;(&quot;</code>时，也就是形如<code>&quot;......()&quot;</code>这样的子字符串，可以推出：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - <span class="number">2</span>] + <span class="number">2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>当元素<code>&quot;)&quot;</code>前一个元素为<code>&quot;)&quot;</code>时，也就是形如<code>&quot;......))&quot;</code>这样的子字符串。这里就要稍微复杂些，因为还要考虑前一个<code>&quot;)&quot;</code>的情况。假设这样的子字符串是一个更长的有效子字符串的一部分，那么前面就有与之对应的<code>&quot;(&quot;</code>，那么再前面的呢，又怎么去找？</p>
+<p>假设成立的情况下，这时的子字符串就类似于这样<code>&quot;...((...))&quot;</code>，而中间一定会出现<code>&quot;...()...&quot;</code>这样的子串，这时就回到了第一种情况，于是就可以通过<code>&quot;...()...&quot;</code>中的<code>&quot;)&quot;</code>来推出下一个元素<code>&quot;)&quot;</code>的<code>dp[i]</code>的值。仔细想想，由于是第一种情况推出来的，那么<code>&quot;......))&quot;</code>这里前一个元素<code>&quot;)&quot;</code>的<code>dp[i]</code>的值就意味着以它结尾的子串<code>&quot;...(...)&quot;</code>的有效子字符串的长度。</p>
+<p>想到这里，就可以去找出前面的有效子串的长度了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - dp[i-<span class="number">1</span>] - <span class="number">2</span>] + dp[i-<span class="number">1</span>] + <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>这里举个例子方便去理解：</p>
+<table>
+<thead>
+<tr>
+<th align="center"><code>i</code></th>
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+<th align="center">4</th>
+<th align="center">5</th>
+<th align="center">6</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>s[i]</code></td>
+<td align="center"><code>(</code></td>
+<td align="center"><code>(</code></td>
+<td align="center"><code>)</code></td>
+<td align="center"><code>(</code></td>
+<td align="center"><code>(</code></td>
+<td align="center"><code>)</code></td>
+<td align="center"><code>)</code></td>
+</tr>
+<tr>
+<td align="center"><code>dp[i]</code></td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">6</td>
+</tr>
+</tbody></table>
+<p>如果你想问假设出现很多个<code>&quot;......))))))&quot;</code>这样的情况的话，其实这都是第二种情况的递推，或者说第二种情况是该情况的子问题</p>
+<p><img src="https://raw.githubusercontent.com/hk27xing/Figurebed/master/img/20200502214412.png" alt=""></p>
+</li>
+</ul>
+<p>到这里本题差不多就解完了，但要注意越界的问题，这里贴出部分代码以帮助大家理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = s.length(), max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (s.charAt(i) == <span class="string">&#x27;)&#x27;</span>)&#123;</span><br><span class="line">                <span class="keyword">if</span> (s.charAt(i-<span class="number">1</span>) == <span class="string">&#x27;(&#x27;</span>)&#123;</span><br><span class="line">                    dp[i] = (i &gt;= <span class="number">2</span> ? dp[i-<span class="number">2</span>] : <span class="number">0</span>) + <span class="number">2</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i - dp[i-<span class="number">1</span>] &gt; <span class="number">0</span> &amp;&amp; s.charAt(i - dp[i-<span class="number">1</span>] - <span class="number">1</span>) == <span class="string">&#x27;(&#x27;</span>)&#123;</span><br><span class="line">                    dp[i] = ((i - dp[i-<span class="number">1</span>]) &gt;= <span class="number">2</span> ? dp[i - dp[i-<span class="number">1</span>] - <span class="number">2</span>] : <span class="number">0</span>) + dp[i-<span class="number">1</span>] + <span class="number">2</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                max = Math.max(max, dp[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="LeetCode72-编辑距离"><a href="#LeetCode72-编辑距离" class="headerlink" title="LeetCode72. 编辑距离"></a>LeetCode<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/edit-distance/">72. 编辑距离</a></h3><p><img src="https://raw.githubusercontent.com/hk27xing/Figurebed/master/img/20200504114227.png" alt=""></p>
+<p>初看完这道题，我自己的想法是直接嵌套循环去找不同，但那些显然不合适（也不说写得出来不，时间估计都超了）</p>
+<p><img src="https://raw.githubusercontent.com/hk27xing/Figurebed/master/img/20200504_2.jpg" alt=""></p>
+<p>这道题其实在于怎么去寻找子问题，从而将原问题进行拆解：这一状态可以看成是由上一状态经过插入、删除、替换操作转换过来的</p>
+<p>另外可以发现使用一维的<code>dp[]</code>不好去定义它，所以这里可以用二维的<code>dp[][]</code>，那么这里<code>dp[i][j]</code>就代表<code>word1</code>中从头到<code>i</code>位置的部分 转换成 <code>word2</code>中从头到<code>j</code>位置的部分 所需要的最少操作数</p>
+<p>将原问题进行拆解，拆解成子问题，子问题再进行拆解…那么初始情况又怎么去找呢，也就是边界怎么去确定呢：考虑到<code>word1</code>或者<code>word2</code>可能为空字符的情况，这里放一张表方便大家去理解（这里借由实例1，给出部分数据，以下讨论也是建立在实例1的基础上）</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center"><code>&#39;&#39;</code></th>
+<th align="center"><code>r</code></th>
+<th align="center"><code>o</code></th>
+<th align="center"><code>s</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>&#39;&#39;</code></td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">3</td>
+</tr>
+<tr>
+<td align="center"><code>h</code></td>
+<td align="center">1</td>
+<td align="center">◆1</td>
+<td align="center">▼2</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>o</code></td>
+<td align="center">2</td>
+<td align="center">●2</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>r</code></td>
+<td align="center">3</td>
+<td align="center">2</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>s</code></td>
+<td align="center">4</td>
+<td align="center">3</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>e</code></td>
+<td align="center">5</td>
+<td align="center">4</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<p><code>&#39;&#39;</code>即为空字符，<code>dp[i][j]</code>的值即为最少操作数（比如说表中那个<code>5</code>即表示<code>horse</code>至少经过5次删除操作后可以得到空字符<code>&#39;&#39;</code>)</p>
+<p>这里还需要确定的是插入、删除、替换 操作怎么通过代码去实现（还请理解不到的朋友们仔细看表格）</p>
+<p>回到给的表格中，可以看到第一个位置为0，意思是两者都为空字符，不需要进行操作，因此操作数为0，如果这时<code>word1</code>和<code>word2</code>的第一个字符相等的话，那么也不需要进行操作，所以这里需要分情况讨论：</p>
+<ul>
+<li><p>当<code>word1[i] == word2[j]</code>的时候，表示最新的一步不需要进行操作，也就是说此时<code>word1[1 ~ i-1]</code>转换成<code>word2[1 ~ j-1]</code>的最少操作数 与 <code>word1[1 ~ i]</code>转换成<code>word2[1 ~ j]</code>的最少操作数是一样的</p>
+<p>所以可以得出：<code>dp[i][j] = dp[i-1][j-1]</code></p>
+</li>
+<li><p>当<code>word1[i] != word2[j]</code>的时候，表示最新的一步需要进行操作：</p>
+<ul>
+<li><p>替换操作：比如说<code>word1</code>第一个字符 与 <code>word2</code>第一个字符 可以直接替换所得（对应表格中打◆的1）</p>
+<p>这里可以得出：<code>dp[i][j] = dp[i-1][j-1] + 1</code></p>
+</li>
+<li><p>删除操作：前面有提到，比如说<code>word1</code>前两个字符<code>ho</code>先是经过一次替换得到<code>ro</code>，要再得到<code>r</code>，则需要一次删除操作（对应表格中打●的2）</p>
+<p>这里可以得到：<code>dp[i][j] = dp[i-1][j] + 1</code></p>
+</li>
+<li><p>插入操作：比如说<code>word1</code>前一个字符<code>h</code>要得到<code>ro</code>，先是<code>h</code>要进行替换得到<code>r</code>，再进行插入操作（对应表格中打▼的2）</p>
+<p>这里可以得到：<code>dp[i][j] = dp[i][j-1] + 1</code></p>
+</li>
+</ul>
+<p>因为要得到最少操作数，所以这里表示为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = Math.min(Math.min(dp[i-<span class="number">1</span>][j], dp[i][j-<span class="number">1</span>]), dp[i-<span class="number">1</span>][j-<span class="number">1</span>]) + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>到这里本题也差不多解完了，这里再贴出部分代码帮助大家理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minDistance</span><span class="params">(String word1, String word2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len1 = word1.length(), len2 = word2.length();</span><br><span class="line">        <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len1+<span class="number">1</span>][len2+<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= len1; i++) &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= len2; j++) &#123;</span><br><span class="line">            dp[<span class="number">0</span>][j] = j;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span>[] words1 = word1.toCharArray();</span><br><span class="line">        <span class="keyword">char</span>[] words2 = word2.toCharArray();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= len1; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= len2; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (words1[i-<span class="number">1</span>] == words2[j-<span class="number">1</span>])&#123;</span><br><span class="line">                    dp[i][j] = dp[i-<span class="number">1</span>][j-<span class="number">1</span>];</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    dp[i][j] = Math.min(Math.min(dp[i-<span class="number">1</span>][j], dp[i][j-<span class="number">1</span>]), </span><br><span class="line">                                        dp[i-<span class="number">1</span>][j-<span class="number">1</span>]) + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[len1][len2];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>所给例题的题解</li>
+<li>程序员小灰—— <a target="_blank" rel="noopener" href="https://juejin.im/post/5a29d52cf265da43333e4da7">漫画：什么是动态规划？</a></li>
+</ul>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><blockquote>
+<p>这篇文章自己是二十多天前开始写的，加上自己还不太会写博客，以及老师布置的作业实在是太多了…趁着五一假期还是把它给码完了 QAQ</p>
+<p>创作不易，如果大家喜欢的话可以点个赞 :D</p>
+</blockquote>
+</div><div class="post-copyright"><blockquote><p>原文作者: hk27xing</p><p>原文链接: <a href="http://yoursite.com/2020/04/09/【算法与数据结构 01】动态规划之引入/">http://yoursite.com/2020/04/09/【算法与数据结构 01】动态规划之引入/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"><a href="/tags/%E7%AE%97%E6%B3%95/">-算法</a></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2020/10/21/index/" class="pre"></a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01%E3%80%91%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B9%8B%E5%BC%95%E5%85%A5"><span class="toc-text">【算法与数据结构 01】动态规划之引入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%85%A5"><span class="toc-text">引入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%A6%81%E7%B4%A0%EF%BC%88%E5%88%92%E9%87%8D%E7%82%B9%EF%BC%81%EF%BC%89"><span class="toc-text">使用要素（划重点！）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%A2%98%E7%9B%AE"><span class="toc-text">相关题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LeetCode-%E9%9D%A2%E8%AF%95%E9%A2%98-17-16-%E6%8C%89%E6%91%A9%E5%B8%88"><span class="toc-text">LeetCode 面试题 17.16. 按摩师</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LeetCode-32-%E6%9C%80%E9%95%BF%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7"><span class="toc-text">LeetCode 32. 最长有效括号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LeetCode72-%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB"><span class="toc-text">LeetCode72. 编辑距离</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E8%AF%9D"><span class="toc-text">后话</span></a></li></ol></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/10/21/index/">index</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/%E3%80%90%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%2001%E3%80%91%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B9%8B%E5%BC%95%E5%85%A5/">【算法与数据结构 01】动态规划之引入</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 15px;">-算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020</a><span class="archive-list-count">2</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">hk27xing.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a target="_blank" rel="noopener" href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.5"></script><div id="fullscreen-img" class="hide"><span class="close"></span></div><script type="text/javascript" src="/js/imgview.js?v=2.0.5" async></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.5" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
